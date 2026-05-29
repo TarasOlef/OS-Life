@@ -12,11 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/forms/form-controls";
 import { getFocusSummary } from "@/features/focus/calculations";
 import { useFocus } from "@/features/focus/use-focus";
+import { useProgress } from "@/features/progress/use-progress";
 import { todayIso } from "@/lib/data/dates";
 
 export default function FocusPage() {
   const focus = useFocus();
+  const progress = useProgress();
   const summary = getFocusSummary(focus.items);
+  const focusTarget = progress.targets?.focus.minutesPerDay ?? null;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -89,7 +92,7 @@ export default function FocusPage() {
         <MetricCard
           title="Today focus"
           value={`${summary.todayMinutes} min`}
-          description="Logged today."
+          description={focusTarget ? `Target ${focusTarget}m` : "Logged today."}
           icon={Timer}
         />
         <MetricCard

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   Banknote,
+  BriefcaseBusiness,
   Database,
   LockKeyhole,
   MonitorCog,
@@ -18,10 +19,20 @@ import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
 import { QuickActionButton } from "@/components/app/quick-action-button";
 import { Button } from "@/components/ui/button";
+import {
+  businessStorageKey,
+  localBusinessRepository,
+} from "@/features/business/repository";
+import {
+  progressStorageKeys,
+  resetOnboardingState,
+} from "@/features/progress/storage";
+import { useProgress } from "@/features/progress/use-progress";
 import { clearAllLocalData, osLifeStorageKeys } from "@/lib/repositories";
 
 export default function SettingsPage() {
   const [message, setMessage] = useState<string | null>(null);
+  const progress = useProgress();
 
   async function handleClear() {
     const confirmed = window.confirm(
@@ -29,7 +40,16 @@ export default function SettingsPage() {
     );
     if (!confirmed) return;
     await clearAllLocalData();
+    await localBusinessRepository.clear();
+    resetOnboardingState();
     setMessage("Local browser data cleared.");
+  }
+
+  function handleResetOnboarding() {
+    const confirmed = window.confirm("Reset onboarding and targets?");
+    if (!confirmed) return;
+    resetOnboardingState();
+    setMessage("Onboarding reset. Tracking logs kept.");
   }
 
   return (
@@ -87,9 +107,46 @@ export default function SettingsPage() {
         ) : null}
       </DashboardCard>
 
+      <DashboardCard title="Goals">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[1.25rem] bg-secondary/40 p-4">
+            <p className="text-xs text-muted-foreground">Profile</p>
+            <p className="mt-1 text-xl font-semibold">
+              {progress.profile?.displayName ?? "Not set"}
+            </p>
+          </div>
+          <div className="rounded-[1.25rem] bg-secondary/40 p-4">
+            <p className="text-xs text-muted-foreground">Progress</p>
+            <p className="mt-1 text-xl font-semibold">
+              {progress.progressState
+                ? `${progress.progressState.overallProgressPercent}%`
+                : "--"}
+            </p>
+          </div>
+          <div className="rounded-[1.25rem] bg-secondary/40 p-4">
+            <p className="text-xs text-muted-foreground">Next</p>
+            <p className="mt-1 text-xl font-semibold">
+              {progress.progressState?.nextBestAction ?? "Onboarding"}
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-4"
+          onClick={handleResetOnboarding}
+        >
+          Reset onboarding
+        </Button>
+      </DashboardCard>
+
       <DashboardCard title="LocalStorage keys">
         <div className="grid gap-2 text-sm sm:grid-cols-2">
-          {Object.values(osLifeStorageKeys).map((key) => (
+          {[
+            ...Object.values(osLifeStorageKeys),
+            ...Object.values(progressStorageKeys),
+            businessStorageKey,
+          ].map((key) => (
             <code
               key={key}
               className="rounded-md border border-border bg-secondary/30 px-3 py-2 text-muted-foreground"
@@ -121,6 +178,11 @@ export default function SettingsPage() {
             href="/investments"
             label="Investments"
             icon={TrendingUp}
+          />
+          <QuickActionButton
+            href="/business"
+            label="Business"
+            icon={BriefcaseBusiness}
           />
           <QuickActionButton
             href="/settings"

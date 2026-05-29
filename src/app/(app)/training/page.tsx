@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Field, TextArea, TextInput } from "@/components/forms/form-controls";
 import { getTrainingSummary } from "@/features/training/calculations";
 import { useTraining } from "@/features/training/use-training";
+import { useProgress } from "@/features/progress/use-progress";
 import { todayIso } from "@/lib/data/dates";
 import type { TrainingSet } from "@/lib/data/schemas";
 
@@ -25,9 +26,11 @@ const workoutSchema = z.object({
 
 export default function TrainingPage() {
   const training = useTraining();
+  const progress = useProgress();
   const [error, setError] = useState<string | null>(null);
   const [setRows, setSetRows] = useState([0]);
   const summary = getTrainingSummary(training.items);
+  const weeklyTarget = progress.targets?.training.sessionsPerWeek ?? 0;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -190,9 +193,9 @@ export default function TrainingPage() {
           icon={Dumbbell}
         />
         <MetricCard
-          title="Weekly sessions"
-          value={String(summary.weeklySessions.length)}
-          description="Sessions this week."
+          title="Week"
+          value={`${summary.weeklySessions.length}/${weeklyTarget || "--"}`}
+          description="Workouts vs target."
           icon={ListChecks}
         />
         <MetricCard

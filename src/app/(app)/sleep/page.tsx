@@ -11,12 +11,15 @@ import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/forms/form-controls";
 import { useDailyLogs } from "@/features/daily-logs/use-daily-logs";
+import { useProgress } from "@/features/progress/use-progress";
 import { getSleepSummary } from "@/features/sleep/calculations";
 import { todayIso } from "@/lib/data/dates";
 
 export default function SleepPage() {
   const dailyLogs = useDailyLogs();
+  const progress = useProgress();
   const summary = getSleepSummary(dailyLogs.logs);
+  const sleepTarget = progress.targets?.sleep.hoursPerNight ?? null;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -85,7 +88,9 @@ export default function SleepPage() {
               ? `${summary.lastNightSleep.toFixed(1)} h`
               : "Not logged"
           }
-          description={summary.recoveryMessage}
+          description={
+            sleepTarget ? `Target ${sleepTarget}h` : summary.recoveryMessage
+          }
           icon={Moon}
         />
         <MetricCard

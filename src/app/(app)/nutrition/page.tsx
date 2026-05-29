@@ -17,6 +17,7 @@ import { MacroPill } from "@/features/nutrition/components/macro-pill";
 import { MealCard } from "@/features/nutrition/components/meal-card";
 import { WeekStrip } from "@/features/nutrition/components/week-strip";
 import { useNutrition } from "@/features/nutrition/use-nutrition";
+import { useProgress } from "@/features/progress/use-progress";
 import { lastNDays, todayIso } from "@/lib/data/dates";
 import { DemoChart } from "@/components/app/demo-chart";
 
@@ -32,13 +33,14 @@ const mealFormSchema = z.object({
 
 export default function NutritionPage() {
   const nutrition = useNutrition();
+  const progress = useProgress();
   const [error, setError] = useState<string | null>(null);
   const today = todayIso();
   const [selectedDate, setSelectedDate] = useState(today);
   const summary = getNutritionSummary(nutrition.items, selectedDate);
   const weekDays = lastNDays(7);
-  const calorieTarget = 2300;
-  const proteinTarget = 160;
+  const calorieTarget = progress.targets?.nutrition.caloriesPerDay ?? 2300;
+  const proteinTarget = progress.targets?.nutrition.proteinGPerDay ?? 160;
   const calorieProgress = Math.min(
     100,
     Math.round((summary.totals.calories / calorieTarget) * 100),

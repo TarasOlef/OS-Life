@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import type { MouseEvent } from "react";
 import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardCard } from "@/components/app/dashboard-card";
+import { isOnboardingCompleted } from "@/features/progress/storage";
 
 export default function Home() {
   return (
@@ -20,8 +24,8 @@ export default function Home() {
             </div>
           </Link>
           <Button asChild variant="secondary">
-            <Link href="/dashboard">
-              Open dashboard
+            <Link href="/onboarding" onClick={routeFromLocalState}>
+              Open OS
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </Button>
@@ -42,8 +46,8 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="default">
-                <Link href="/dashboard">
-                  Enter setup dashboard
+                <Link href="/onboarding" onClick={routeFromLocalState}>
+                  Start
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </Button>
@@ -89,4 +93,9 @@ export default function Home() {
       </div>
     </main>
   );
+}
+
+function routeFromLocalState(event: MouseEvent<HTMLAnchorElement>) {
+  event.preventDefault();
+  window.location.href = isOnboardingCompleted() ? "/dashboard" : "/onboarding";
 }

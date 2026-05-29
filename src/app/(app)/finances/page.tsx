@@ -17,12 +17,15 @@ import {
 } from "@/components/forms/form-controls";
 import { getFinanceSummary } from "@/features/finances/calculations";
 import { useFinances } from "@/features/finances/use-finances";
+import { useProgress } from "@/features/progress/use-progress";
 import { todayIso } from "@/lib/data/dates";
 import { currency } from "@/lib/data/format";
 
 export default function FinancesPage() {
   const finances = useFinances();
+  const progress = useProgress();
   const summary = getFinanceSummary(finances.items);
+  const spendLimit = progress.targets?.money.monthlySpendingLimit ?? null;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -103,7 +106,9 @@ export default function FinancesPage() {
         <MetricCard
           title="Monthly spend"
           value={currency(summary.spentThisMonth)}
-          description="Current month."
+          description={
+            spendLimit ? `Limit ${currency(spendLimit)}` : "Current month."
+          }
           icon={CreditCard}
         />
         <MetricCard

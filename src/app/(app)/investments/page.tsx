@@ -16,11 +16,15 @@ import {
 } from "@/components/forms/form-controls";
 import { getInvestmentSummary } from "@/features/investments/calculations";
 import { useInvestments } from "@/features/investments/use-investments";
+import { useProgress } from "@/features/progress/use-progress";
 import { currency } from "@/lib/data/format";
 
 export default function InvestmentsPage() {
   const investments = useInvestments();
+  const progress = useProgress();
   const summary = getInvestmentSummary(investments.items);
+  const monthlyTarget =
+    progress.targets?.investments.monthlyInvestmentTarget ?? null;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -111,7 +115,11 @@ export default function InvestmentsPage() {
         <MetricCard
           title="Total invested"
           value={currency(summary.totalInvested, "USD")}
-          description="Average buy price x quantity."
+          description={
+            monthlyTarget
+              ? `Monthly target ${currency(monthlyTarget, "USD")}`
+              : "Average buy price x quantity."
+          }
           icon={LineChart}
         />
         <MetricCard

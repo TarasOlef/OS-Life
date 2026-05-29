@@ -1,6 +1,7 @@
 import {
   Activity,
   BarChart3,
+  BriefcaseBusiness,
   CircleUserRound,
   Dumbbell,
   Ellipsis,
@@ -69,6 +70,12 @@ export const appRoutes: AppRoute[] = [
     href: "/investments",
     icon: LineChart,
     description: "Portfolio positions",
+  },
+  {
+    title: "Business",
+    href: "/business",
+    icon: BriefcaseBusiness,
+    description: "Execution blocks",
   },
   {
     title: "Settings",

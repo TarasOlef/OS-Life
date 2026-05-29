@@ -1,0 +1,225 @@
+import { z } from "zod";
+import { progressDomains } from "@/features/progress/types";
+
+const nullableNumber = z.coerce.number().finite().nullable();
+const nullableText = z.string().trim().nullable();
+
+export const progressStatusSchema = z.enum([
+  "not_started",
+  "behind",
+  "on_track",
+  "complete",
+  "over_limit",
+  "needs_log",
+]);
+
+export const onboardingProfileSchema = z.object({
+  displayName: z.string().trim().min(1),
+  currentWeightKg: nullableNumber,
+  heightCm: nullableNumber,
+  mainFocus: z.enum([
+    "Body",
+    "Gym",
+    "Nutrition",
+    "Sleep",
+    "Focus",
+    "Money",
+    "Business",
+    "Full system",
+  ]),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+});
+
+export const lifeGoalsSchema = z.object({
+  bodyGoal: z.enum([
+    "Lose fat",
+    "Build muscle",
+    "Recompose",
+    "Maintain",
+    "Get athletic",
+  ]),
+  targetWeightKg: nullableNumber,
+  waistCm: nullableNumber,
+  bodyCheckinFrequency: z.enum(["Weekly", "Twice/month", "Monthly"]),
+  nutritionGoal: z.enum([
+    "Cut",
+    "Lean bulk",
+    "Maintain",
+    "Recomposition",
+    "Eat cleaner",
+  ]),
+  targetCalories: nullableNumber,
+  targetProteinG: nullableNumber,
+  mealsPerDay: z.coerce.number().int().positive(),
+  nutritionIssue: z.enum([
+    "Low protein",
+    "Snacks",
+    "Eating out",
+    "No structure",
+    "Overeating",
+    "Undereating",
+  ]),
+  currentTrainingDaysPerWeek: z.coerce.number().int().min(0).max(7),
+  targetTrainingDaysPerWeek: z.coerce.number().int().min(1).max(7),
+  trainingGoal: z.enum([
+    "Muscle",
+    "Strength",
+    "Fat loss",
+    "Athletic",
+    "Consistency",
+  ]),
+  trainingExperience: z.enum(["Beginner", "Intermediate", "Advanced"]),
+  usualSleepHours: nullableNumber,
+  targetSleepHours: z.coerce.number().finite().positive(),
+  sleepQuality: nullableNumber,
+  sleepIssue: z.enum([
+    "Phone",
+    "Late work",
+    "Stress",
+    "No routine",
+    "Wake tired",
+    "Inconsistent",
+  ]),
+  currentFocusMinutesPerDay: z.coerce.number().int().min(0),
+  targetFocusMinutesPerDay: z.coerce.number().int().positive(),
+  focusArea: z.enum([
+    "Coding",
+    "Studies",
+    "Business",
+    "Fitness",
+    "Creative",
+    "Job search",
+  ]),
+  focusIssue: z.enum([
+    "Phone",
+    "Procrastination",
+    "No plan",
+    "Low energy",
+    "Too many projects",
+    "Inconsistency",
+  ]),
+  monthlyIncome: nullableNumber,
+  monthlySpendingLimit: nullableNumber,
+  monthlySavingTarget: nullableNumber,
+  moneyControl: nullableNumber,
+  financialGoal: z.enum([
+    "Spend less",
+    "Save more",
+    "Invest monthly",
+    "Build emergency fund",
+    "Increase income",
+    "Track everything",
+  ]),
+  businessStage: z.enum([
+    "No business yet",
+    "Idea",
+    "Building MVP",
+    "Launched",
+    "Getting users",
+    "Making revenue",
+  ]),
+  businessType: z.enum([
+    "App/SaaS",
+    "Content",
+    "Freelance",
+    "Ecommerce",
+    "Agency",
+    "Other",
+  ]),
+  weeklyBusinessHoursTarget: z.coerce.number().int().min(0),
+  targetMonthlyRevenue: nullableNumber,
+  mainBusinessGoal: nullableText,
+  businessPriority: z.enum([
+    "Build product",
+    "Get users",
+    "Create content",
+    "Sell",
+    "Learn skills",
+    "Improve offer",
+  ]),
+  investingStatus: z.enum([
+    "Not started",
+    "Learning",
+    "Small positions",
+    "Monthly investor",
+    "Active portfolio",
+  ]),
+  monthlyInvestmentTarget: nullableNumber,
+  investmentGoal: z.enum([
+    "Start investing",
+    "Invest monthly",
+    "Grow portfolio",
+    "Track positions",
+    "Learn markets",
+  ]),
+  riskStyle: z.enum(["Conservative", "Balanced", "Growth", "Aggressive"]),
+  ninetyDayPriority: nullableText,
+  twelveMonthGoal: nullableText,
+  trackingStyle: z.enum(["Minimal", "Standard", "Detailed"]),
+  intensity: z.enum(["Easy", "Balanced", "Aggressive"]),
+});
+
+export const domainTargetsSchema = z.object({
+  body: z.object({
+    currentWeightKg: nullableNumber,
+    targetWeightKg: nullableNumber,
+    checkinFrequency: z.enum(["Weekly", "Twice/month", "Monthly"]),
+  }),
+  nutrition: z.object({
+    caloriesPerDay: nullableNumber,
+    proteinGPerDay: nullableNumber,
+    mealsPerDay: z.coerce.number().int().positive(),
+  }),
+  training: z.object({ sessionsPerWeek: z.coerce.number().int().positive() }),
+  sleep: z.object({
+    hoursPerNight: z.coerce.number().finite().positive(),
+    qualityTarget: z.coerce.number().finite().positive(),
+  }),
+  focus: z.object({ minutesPerDay: z.coerce.number().int().positive() }),
+  money: z.object({
+    monthlyIncome: nullableNumber,
+    monthlySpendingLimit: nullableNumber,
+    monthlySavingTarget: nullableNumber,
+  }),
+  business: z.object({
+    hoursPerWeek: z.coerce.number().int().min(0),
+    targetMonthlyRevenue: nullableNumber,
+    priority: z.enum([
+      "Build product",
+      "Get users",
+      "Create content",
+      "Sell",
+      "Learn skills",
+      "Improve offer",
+    ]),
+  }),
+  investments: z.object({ monthlyInvestmentTarget: nullableNumber }),
+});
+
+export const domainProgressSchema = z.object({
+  domain: z.enum(progressDomains),
+  label: z.string().min(1),
+  currentValue: z.number().finite(),
+  targetValue: z.number().finite().nullable(),
+  unit: z.string(),
+  progressPercent: z.number().finite().min(0).max(100),
+  status: progressStatusSchema,
+  nextAction: z.string().min(1),
+  updatedAt: z.string().min(1),
+});
+
+export const progressStateSchema = z.object({
+  overallProgressPercent: z.number().finite().min(0).max(100),
+  strongestDomain: domainProgressSchema.nullable(),
+  weakestDomain: domainProgressSchema.nullable(),
+  topPriority: z.object({
+    domain: z.enum(progressDomains),
+    label: z.string().min(1),
+    action: z.string().min(1),
+    status: progressStatusSchema,
+  }),
+  nextBestAction: z.string().min(1),
+  domainProgress: z.array(domainProgressSchema),
+  updatedAt: z.string().min(1),
+});

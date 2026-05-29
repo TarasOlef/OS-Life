@@ -50,6 +50,10 @@ The current implementation stores data in `localStorage` with the `os-life:*` na
 
 OS-Life uses an iOS-first interface style: large numbers, minimal labels, soft grouped cards, native-feeling bottom navigation, bottom-sheet forms, and subtle motion. The app should feel like a premium mobile health/fitness tool that expands cleanly to desktop.
 
+## Goal-Based Progress
+
+The app uses real goals and local logged data for progress. There is no XP, leveling, badges, ranks, or game-like progression. Onboarding stores profile, goals, targets, and progress in localStorage under the `os-life:*` namespace. Dashboard progress is calculated from nutrition, training, sleep, body, focus, finances, investments, and business execution logs.
+
 ## Current Sprint Scope
 
 - Premium landing/start page at `/`
