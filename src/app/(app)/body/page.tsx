@@ -10,29 +10,14 @@ import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Field, TextArea, TextInput } from "@/components/forms/form-controls";
+import { getBodySummary } from "@/features/body/calculations";
 import { useBody } from "@/features/body/use-body";
-import { lastNDays, todayIso } from "@/lib/data/dates";
+import { todayIso } from "@/lib/data/dates";
 import { formatNumber } from "@/lib/data/format";
 
 export default function BodyPage() {
   const body = useBody();
-  const latest = [...body.items].sort((a, b) =>
-    b.date.localeCompare(a.date),
-  )[0];
-  const previous = [...body.items].sort((a, b) =>
-    b.date.localeCompare(a.date),
-  )[1];
-  const trend =
-    latest?.weightKg && previous?.weightKg
-      ? latest.weightKg - previous.weightKg
-      : null;
-  const chartData = lastNDays(14).map((date) => ({
-    day: new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    score: body.items.find((item) => item.date === date)?.weightKg ?? 0,
-  }));
+  const summary = getBodySummary(body.items);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -96,35 +81,41 @@ export default function BodyPage() {
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Latest weight"
-          value={formatNumber(latest?.weightKg, " kg")}
-          description={latest?.date ?? "No check-in yet."}
+          value={formatNumber(summary.latest?.weightKg, " kg")}
+          description={summary.latest?.date ?? "No check-in yet."}
           icon={Weight}
         />
         <MetricCard
           title="Waist"
-          value={formatNumber(latest?.waistCm, " cm")}
+          value={formatNumber(summary.latest?.waistCm, " cm")}
           description="Latest measurement."
           icon={Ruler}
         />
         <MetricCard
           title="Weight trend"
           value={
-            trend === null
+            summary.weightChange === null
               ? "Pending"
-              : `${trend > 0 ? "+" : ""}${trend.toFixed(1)} kg`
+              : `${summary.weightChange > 0 ? "+" : ""}${summary.weightChange.toFixed(1)} kg`
           }
           description="Compared with previous check-in."
           icon={TrendingUp}
+        />
+        <MetricCard
+          title="Check-ins this month"
+          value={String(summary.checkinsThisMonth)}
+          description="Local body entries this month."
+          icon={Camera}
         />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <DashboardCard title="Weight trend">
-          {chartData.some((point) => point.score > 0) ? (
-            <DemoChart data={chartData} />
+          {summary.chartData.some((point) => point.score > 0) ? (
+            <DemoChart data={summary.chartData} />
           ) : (
             <EmptyState
               title="No body trend yet"
@@ -175,6 +166,20 @@ export default function BodyPage() {
           )}
         </DashboardCard>
       </section>
+
+      <DashboardCard title="Measurements summary">
+        <div className="grid gap-2 text-sm sm:grid-cols-3">
+          <div className="rounded-md bg-secondary/30 px-3 py-2">
+            Chest: {formatNumber(summary.latest?.chestCm, " cm")}
+          </div>
+          <div className="rounded-md bg-secondary/30 px-3 py-2">
+            Waist: {formatNumber(summary.latest?.waistCm, " cm")}
+          </div>
+          <div className="rounded-md bg-secondary/30 px-3 py-2">
+            Arm: {formatNumber(summary.latest?.armCm, " cm")}
+          </div>
+        </div>
+      </DashboardCard>
 
       <DashboardCard title="Future physique feedback">
         <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-6 text-center">

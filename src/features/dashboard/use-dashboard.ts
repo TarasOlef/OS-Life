@@ -7,7 +7,11 @@ import { useFocus } from "@/features/focus/use-focus";
 import { useInvestments } from "@/features/investments/use-investments";
 import { useNutrition } from "@/features/nutrition/use-nutrition";
 import { useTraining } from "@/features/training/use-training";
-import { lastNDays, todayIso } from "@/lib/data/dates";
+import {
+  calculateLifeScore,
+  getDashboardPriority,
+} from "@/features/dashboard/calculations";
+import { isThisWeek, lastNDays, todayIso } from "@/lib/data/dates";
 import { sum } from "@/lib/data/format";
 
 export function useDashboard() {
@@ -32,6 +36,9 @@ export function useDashboard() {
   const latestBody = [...body.items].sort((a, b) =>
     b.date.localeCompare(a.date),
   )[0];
+  const hasBodyCheckinThisWeek = body.items.some((item) =>
+    isThisWeek(item.date),
+  );
 
   const calories = sum(todayMeals.map((meal) => meal.calories));
   const protein = sum(todayMeals.map((meal) => meal.proteinG));
@@ -52,14 +59,15 @@ export function useDashboard() {
     trainedToday: todayTraining.length > 0,
     focusMinutes,
     moneySpent,
-    hasBodyCheckin: Boolean(latestBody),
+    hasBodyCheckinThisWeek,
   });
 
-  const priority = getPriority({
+  const priority = getDashboardPriority({
     protein,
     trainedToday: todayTraining.length > 0,
     sleepHours: todayLog?.sleepHours ?? null,
     moneySpent,
+    hasBodyCheckinThisWeek,
   });
 
   const weeklyTrend = lastNDays(7).map((date) => {
@@ -85,7 +93,7 @@ export function useDashboard() {
             .filter((transaction) => transaction.date === date)
             .map((transaction) => transaction.amount),
         ),
-        hasBodyCheckin: body.items.some((item) => item.date === date),
+        hasBodyCheckinThisWeek: body.items.some((item) => item.date === date),
       }),
     };
   });
@@ -126,63 +134,4 @@ export function useDashboard() {
       portfolioValue,
     },
   };
-}
-
-function calculateLifeScore({
-  sleepHours,
-  calories,
-  protein,
-  trainedToday,
-  focusMinutes,
-  moneySpent,
-  hasBodyCheckin,
-}: {
-  sleepHours: number | null;
-  calories: number;
-  protein: number;
-  trainedToday: boolean;
-  focusMinutes: number;
-  moneySpent: number;
-  hasBodyCheckin: boolean;
-}) {
-  let score = 45;
-  if (sleepHours && sleepHours >= 7) score += 15;
-  if (sleepHours && sleepHours < 6) score -= 8;
-  if (calories > 0) score += 8;
-  if (protein >= 120) score += 12;
-  if (trainedToday) score += 10;
-  if (focusMinutes >= 60) score += 10;
-  if (moneySpent > 100) score -= 5;
-  if (hasBodyCheckin) score += 3;
-  return Math.max(0, Math.min(100, Math.round(score)));
-}
-
-function getPriority({
-  protein,
-  trainedToday,
-  sleepHours,
-  moneySpent,
-}: {
-  protein: number;
-  trainedToday: boolean;
-  sleepHours: number | null;
-  moneySpent: number;
-}) {
-  if (sleepHours !== null && sleepHours < 6) {
-    return "Prioritize recovery and keep training intensity controlled.";
-  }
-
-  if (protein < 120) {
-    return "Add a high-protein meal to stabilize today's nutrition.";
-  }
-
-  if (!trainedToday) {
-    return "Log a short training session or active recovery block.";
-  }
-
-  if (moneySpent > 100) {
-    return "Review today's spending before adding new expenses.";
-  }
-
-  return "Keep execution simple: finish one focused block and log it.";
 }

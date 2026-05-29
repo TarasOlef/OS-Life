@@ -8,34 +8,21 @@ import { DemoChart } from "@/components/app/demo-chart";
 import { EmptyState } from "@/components/app/empty-state";
 import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
+import { SimpleBarChart } from "@/components/app/simple-bar-chart";
 import { Button } from "@/components/ui/button";
 import {
   Field,
   SelectInput,
   TextInput,
 } from "@/components/forms/form-controls";
+import { getFinanceSummary } from "@/features/finances/calculations";
 import { useFinances } from "@/features/finances/use-finances";
-import { isThisMonth, lastNDays, todayIso } from "@/lib/data/dates";
-import { currency, sum } from "@/lib/data/format";
+import { todayIso } from "@/lib/data/dates";
+import { currency } from "@/lib/data/format";
 
 export default function FinancesPage() {
   const finances = useFinances();
-  const monthlySpend = sum(
-    finances.items
-      .filter((item) => isThisMonth(item.date))
-      .map((item) => item.amount),
-  );
-  const categories = groupByCategory(finances.items);
-  const chartData = lastNDays(7).map((date) => ({
-    day: new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
-      weekday: "short",
-    }),
-    score: sum(
-      finances.items
-        .filter((item) => item.date === date)
-        .map((item) => item.amount),
-    ),
-  }));
+  const summary = getFinanceSummary(finances.items);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -108,35 +95,39 @@ export default function FinancesPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
+          title="Spent today"
+          value={currency(summary.spentToday)}
+          description="Positive expense amounts."
+          icon={CreditCard}
+        />
+        <MetricCard
           title="Monthly spend"
-          value={currency(monthlySpend)}
+          value={currency(summary.spentThisMonth)}
           description="Current month."
           icon={CreditCard}
         />
         <MetricCard
-          title="Income"
-          value="Placeholder"
-          description="Income tracking comes later."
-          icon={Banknote}
-        />
-        <MetricCard
-          title="Savings"
-          value="Placeholder"
-          description="Manual savings signal planned."
-          icon={Banknote}
-        />
-        <MetricCard
-          title="Categories"
-          value={String(categories.length)}
-          description="Active spend groups."
+          title="Biggest category"
+          value={summary.biggestCategory?.category ?? "Pending"}
+          description={
+            summary.biggestCategory
+              ? currency(summary.biggestCategory.total)
+              : "No transactions yet."
+          }
           icon={Tags}
+        />
+        <MetricCard
+          title="Avg daily spend"
+          value={currency(summary.averageDailySpend)}
+          description="Average this month."
+          icon={Banknote}
         />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <DashboardCard title="Weekly spend">
-          {chartData.some((point) => point.score > 0) ? (
-            <DemoChart data={chartData} />
+          {summary.weeklySpend.some((point) => point.score > 0) ? (
+            <DemoChart data={summary.weeklySpend} />
           ) : (
             <EmptyState
               title="No spend chart yet"
@@ -146,18 +137,13 @@ export default function FinancesPage() {
           )}
         </DashboardCard>
         <DashboardCard title="Spend by category">
-          {categories.length > 0 ? (
-            <div className="space-y-2">
-              {categories.map((item) => (
-                <div
-                  key={item.category}
-                  className="flex justify-between rounded-md border border-border bg-secondary/30 px-3 py-2 text-sm"
-                >
-                  <span>{item.category}</span>
-                  <span>{currency(item.total)}</span>
-                </div>
-              ))}
-            </div>
+          {summary.categoryTotals.length > 0 ? (
+            <SimpleBarChart
+              data={summary.categoryTotals.map((item) => ({
+                label: item.category,
+                value: item.total,
+              }))}
+            />
           ) : (
             <EmptyState
               title="No categories yet"
@@ -210,13 +196,6 @@ export default function FinancesPage() {
       </DashboardCard>
     </>
   );
-}
-
-function groupByCategory(items: { category: string; amount: number }[]) {
-  const totals = new Map<string, number>();
-  for (const item of items)
-    totals.set(item.category, (totals.get(item.category) ?? 0) + item.amount);
-  return Array.from(totals, ([category, total]) => ({ category, total }));
 }
 
 function nullableText(value: FormDataEntryValue | null) {

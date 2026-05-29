@@ -54,6 +54,15 @@ The current implementation stores data in `localStorage` with the `os-life:*` na
 - Reusable components: `AppShell`, `Sidebar`, `MobileNav`, `PageHeader`, `MetricCard`, `DashboardCard`, `SectionTitle`, `EmptyState`, `QuickActionButton`, `DemoChart`, `AddEntryDialog`, `StatTrend`, and `ModuleSummaryCard`
 - Local repositories for daily logs, nutrition, training, body, focus, finances, and investments
 - Usable local forms, lists, delete actions, summaries, and charts
+- Local calculation services for dashboard, nutrition, training, sleep, body, focus, finances, and investments
+- Dashboard life score, priority, recent signals, and weekly trend from local data
+- Nutrition daily totals, recent meals, macro summary, and weekly calories/protein charts
+- Training multi-set workout logging, weekly summary, and PR-like max-weight summaries
+- Sleep recovery message, best/worst night, averages, and weekly chart
+- Body check-ins, measurement summary, monthly count, and weight trend
+- Focus totals, average quality, top project, and weekly chart
+- Finance spend summaries, category chart, and weekly spend chart
+- Investment portfolio value, gain/loss, gain/loss percentage, and allocation chart
 - Settings page with local data clearing
 - Basic PWA manifest and icon
 

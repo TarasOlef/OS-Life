@@ -18,7 +18,7 @@ import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
 import { QuickActionButton } from "@/components/app/quick-action-button";
 import { Button } from "@/components/ui/button";
-import { clearAllLocalData } from "@/lib/repositories";
+import { clearAllLocalData, osLifeStorageKeys } from "@/lib/repositories";
 
 export default function SettingsPage() {
   const [message, setMessage] = useState<string | null>(null);
@@ -85,6 +85,19 @@ export default function SettingsPage() {
         {message ? (
           <p className="mt-3 text-sm text-emerald-300">{message}</p>
         ) : null}
+      </DashboardCard>
+
+      <DashboardCard title="LocalStorage keys">
+        <div className="grid gap-2 text-sm sm:grid-cols-2">
+          {Object.values(osLifeStorageKeys).map((key) => (
+            <code
+              key={key}
+              className="rounded-md border border-border bg-secondary/30 px-3 py-2 text-muted-foreground"
+            >
+              {key}
+            </code>
+          ))}
+        </div>
       </DashboardCard>
 
       <DashboardCard title="Security and environment note">

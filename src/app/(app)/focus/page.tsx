@@ -10,32 +10,13 @@ import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/forms/form-controls";
+import { getFocusSummary } from "@/features/focus/calculations";
 import { useFocus } from "@/features/focus/use-focus";
-import { lastNDays, todayIso } from "@/lib/data/dates";
-import { sum } from "@/lib/data/format";
+import { todayIso } from "@/lib/data/dates";
 
 export default function FocusPage() {
   const focus = useFocus();
-  const todaySessions = focus.items.filter((item) => item.date === todayIso());
-  const todayMinutes = sum(todaySessions.map((item) => item.durationMinutes));
-  const weekDates = lastNDays(7);
-  const weeklyMinutes = sum(
-    focus.items
-      .filter((item) => weekDates.includes(item.date))
-      .map((item) => item.durationMinutes),
-  );
-  const activeProject =
-    todaySessions.find((item) => item.project)?.project ?? "Not set";
-  const chartData = weekDates.map((date) => ({
-    day: new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
-      weekday: "short",
-    }),
-    score: sum(
-      focus.items
-        .filter((item) => item.date === date)
-        .map((item) => item.durationMinutes),
-    ),
-  }));
+  const summary = getFocusSummary(focus.items);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -104,31 +85,45 @@ export default function FocusPage() {
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Today focus"
-          value={`${todayMinutes} min`}
+          value={`${summary.todayMinutes} min`}
           description="Logged today."
           icon={Timer}
         />
         <MetricCard
           title="Weekly focus"
-          value={`${weeklyMinutes} min`}
+          value={`${summary.weeklyMinutes} min`}
           description="Last seven days."
           icon={Gauge}
         />
         <MetricCard
           title="Active project"
-          value={activeProject}
-          description="From today's sessions."
+          value={summary.topProject?.project ?? "Not set"}
+          description={
+            summary.topProject
+              ? `${summary.topProject.minutes} min this week.`
+              : "No project time this week."
+          }
           icon={FolderKanban}
+        />
+        <MetricCard
+          title="Average quality"
+          value={
+            summary.averageQuality
+              ? summary.averageQuality.toFixed(1)
+              : "Pending"
+          }
+          description="Average quality this week."
+          icon={Gauge}
         />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <DashboardCard title="Weekly focus minutes">
-          {chartData.some((point) => point.score > 0) ? (
-            <DemoChart data={chartData} />
+          {summary.chartData.some((point) => point.score > 0) ? (
+            <DemoChart data={summary.chartData} />
           ) : (
             <EmptyState
               title="No focus data"

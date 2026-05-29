@@ -7,26 +7,20 @@ import { DashboardCard } from "@/components/app/dashboard-card";
 import { EmptyState } from "@/components/app/empty-state";
 import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
+import { SimpleBarChart } from "@/components/app/simple-bar-chart";
 import { Button } from "@/components/ui/button";
 import {
   Field,
   SelectInput,
   TextInput,
 } from "@/components/forms/form-controls";
+import { getInvestmentSummary } from "@/features/investments/calculations";
 import { useInvestments } from "@/features/investments/use-investments";
-import { currency, sum } from "@/lib/data/format";
+import { currency } from "@/lib/data/format";
 
 export default function InvestmentsPage() {
   const investments = useInvestments();
-  const portfolioValue = sum(
-    investments.items.map((item) => (item.currentPrice ?? 0) * item.quantity),
-  );
-  const invested = sum(
-    investments.items.map(
-      (item) => (item.averageBuyPrice ?? 0) * item.quantity,
-    ),
-  );
-  const gainLoss = portfolioValue - invested;
+  const summary = getInvestmentSummary(investments.items);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -110,24 +104,36 @@ export default function InvestmentsPage() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <MetricCard
           title="Portfolio value"
-          value={currency(portfolioValue, "USD")}
+          value={currency(summary.portfolioValue, "USD")}
           description="Manual current prices."
           icon={WalletCards}
         />
         <MetricCard
           title="Total invested"
-          value={currency(invested, "USD")}
+          value={currency(summary.totalInvested, "USD")}
           description="Average buy price x quantity."
           icon={LineChart}
         />
         <MetricCard
           title="Estimated gain/loss"
-          value={currency(gainLoss, "USD")}
-          description="Current value minus invested."
+          value={currency(summary.gainLoss, "USD")}
+          description={`${summary.gainLossPercent.toFixed(1)}% based on manual prices.`}
           icon={ServerCog}
-          status={gainLoss >= 0 ? "good" : "warning"}
+          status={summary.gainLoss >= 0 ? "good" : "warning"}
         />
       </section>
+
+      <DashboardCard title="Allocation by position">
+        {summary.allocation.some((point) => point.value > 0) ? (
+          <SimpleBarChart data={summary.allocation} />
+        ) : (
+          <EmptyState
+            title="No allocation yet"
+            description="Add positions with current prices to see allocation."
+            icon={LineChart}
+          />
+        )}
+      </DashboardCard>
 
       <DashboardCard title="Positions">
         {investments.items.length > 0 ? (
@@ -175,7 +181,7 @@ export default function InvestmentsPage() {
 
       <DashboardCard title="Market data note">
         <p className="text-sm leading-6 text-muted-foreground">
-          Live market prices will be added later through a server-side API.
+          Live prices will be added later through a server-side market data API.
         </p>
       </DashboardCard>
     </>

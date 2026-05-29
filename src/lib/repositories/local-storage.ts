@@ -30,7 +30,7 @@ import type {
   UpdateInput,
 } from "@/lib/repositories/types";
 
-const keys = {
+export const osLifeStorageKeys = {
   dailyLogs: "os-life:daily-logs",
   nutritionEntries: "os-life:nutrition-entries",
   trainingSessions: "os-life:training-sessions",
@@ -133,10 +133,13 @@ function createLocalRepository<
 }
 
 export const localDailyLogRepository: DailyLogRepository = {
-  ...createLocalRepository<DailyLog>(keys.dailyLogs, dailyLogSchema),
+  ...createLocalRepository<DailyLog>(
+    osLifeStorageKeys.dailyLogs,
+    dailyLogSchema,
+  ),
   async getByDate(date) {
     return (
-      readItems(keys.dailyLogs, dailyLogSchema).find(
+      readItems(osLifeStorageKeys.dailyLogs, dailyLogSchema).find(
         (item) => item.date === date,
       ) ?? null
     );
@@ -164,31 +167,37 @@ export const localDailyLogRepository: DailyLogRepository = {
 
 export const localNutritionRepository: NutritionRepository =
   createLocalRepository<NutritionEntry>(
-    keys.nutritionEntries,
+    osLifeStorageKeys.nutritionEntries,
     nutritionEntrySchema,
   );
 
 export const localTrainingRepository: TrainingRepository =
   createLocalRepository<TrainingSession>(
-    keys.trainingSessions,
+    osLifeStorageKeys.trainingSessions,
     trainingSessionSchema,
   );
 
 export const localBodyRepository: BodyRepository =
-  createLocalRepository<BodyCheckin>(keys.bodyCheckins, bodyCheckinSchema);
+  createLocalRepository<BodyCheckin>(
+    osLifeStorageKeys.bodyCheckins,
+    bodyCheckinSchema,
+  );
 
 export const localFocusRepository: FocusRepository =
-  createLocalRepository<FocusSession>(keys.focusSessions, focusSessionSchema);
+  createLocalRepository<FocusSession>(
+    osLifeStorageKeys.focusSessions,
+    focusSessionSchema,
+  );
 
 export const localFinanceRepository: FinanceRepository =
   createLocalRepository<FinanceTransaction>(
-    keys.financeTransactions,
+    osLifeStorageKeys.financeTransactions,
     financeTransactionSchema,
   );
 
 export const localInvestmentRepository: InvestmentRepository =
   createLocalRepository<InvestmentPosition>(
-    keys.investmentPositions,
+    osLifeStorageKeys.investmentPositions,
     investmentPositionSchema,
   );
 
