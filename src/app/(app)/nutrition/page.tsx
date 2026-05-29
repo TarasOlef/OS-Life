@@ -1,18 +1,23 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Camera, Flame, Soup, Trash2, Utensils } from "lucide-react";
+import { Camera, Plus, Soup, Sparkles, Trash2, Utensils } from "lucide-react";
 import { z } from "zod";
 import { AddEntryDialog } from "@/components/app/add-entry-dialog";
+import { AnimatedCard } from "@/components/app/animated";
 import { DashboardCard } from "@/components/app/dashboard-card";
 import { EmptyState } from "@/components/app/empty-state";
-import { MetricCard } from "@/components/app/metric-card";
+import { FloatingActionButton } from "@/components/app/floating-action-button";
 import { PageHeader } from "@/components/app/page-header";
+import { ProgressRing } from "@/components/app/progress-ring";
 import { Button } from "@/components/ui/button";
 import { Field, TextArea, TextInput } from "@/components/forms/form-controls";
 import { getNutritionSummary } from "@/features/nutrition/calculations";
+import { MacroPill } from "@/features/nutrition/components/macro-pill";
+import { MealCard } from "@/features/nutrition/components/meal-card";
+import { WeekStrip } from "@/features/nutrition/components/week-strip";
 import { useNutrition } from "@/features/nutrition/use-nutrition";
-import { todayIso } from "@/lib/data/dates";
+import { lastNDays, todayIso } from "@/lib/data/dates";
 import { DemoChart } from "@/components/app/demo-chart";
 
 const mealFormSchema = z.object({
@@ -29,7 +34,19 @@ export default function NutritionPage() {
   const nutrition = useNutrition();
   const [error, setError] = useState<string | null>(null);
   const today = todayIso();
-  const summary = getNutritionSummary(nutrition.items, today);
+  const [selectedDate, setSelectedDate] = useState(today);
+  const summary = getNutritionSummary(nutrition.items, selectedDate);
+  const weekDays = lastNDays(7);
+  const calorieTarget = 2300;
+  const proteinTarget = 160;
+  const calorieProgress = Math.min(
+    100,
+    Math.round((summary.totals.calories / calorieTarget) * 100),
+  );
+  const proteinProgress = Math.min(
+    100,
+    Math.round((summary.totals.protein / proteinTarget) * 100),
+  );
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -64,14 +81,25 @@ export default function NutritionPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Nutrition"
-        title="Manual meals now. AI later."
-        description="Track calories and macros locally in this browser. Image analysis is intentionally deferred."
+        eyebrow="Today"
+        title="Nutrition"
         actions={
           <AddEntryDialog
             title="Add meal"
-            description="Manual logging keeps the first sprint useful without external APIs."
             triggerLabel="Add meal"
+            trigger={(open) => (
+              <>
+                <Button
+                  type="button"
+                  onClick={open}
+                  className="hidden xl:inline-flex"
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  Add meal
+                </Button>
+                <FloatingActionButton label="Add meal" onClick={open} />
+              </>
+            )}
           >
             {(close) => (
               <form
@@ -83,7 +111,11 @@ export default function NutritionPage() {
                 </Field>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Date">
-                    <TextInput name="date" type="date" defaultValue={today} />
+                    <TextInput
+                      name="date"
+                      type="date"
+                      defaultValue={selectedDate}
+                    />
                   </Field>
                   <Field label="Calories">
                     <TextInput name="calories" type="number" min="0" step="1" />
@@ -104,153 +136,154 @@ export default function NutritionPage() {
                   </Field>
                 </div>
                 <Field label="Notes">
-                  <TextArea name="notes" placeholder="Optional notes" />
+                  <TextArea name="notes" placeholder="Optional" />
                 </Field>
                 {error ? (
                   <p className="text-sm text-destructive">{error}</p>
                 ) : null}
-                <Button type="submit">Save meal</Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button type="button" variant="secondary" onClick={close}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save</Button>
+                </div>
               </form>
             )}
           </AddEntryDialog>
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <MetricCard
-          title="Calories"
-          value={
-            summary.totals.calories > 0
-              ? `${summary.totals.calories} kcal`
-              : "Not logged"
-          }
-          description="Today total."
-          icon={Flame}
-        />
-        <MetricCard
-          title="Protein"
-          value={
-            summary.totals.protein > 0
-              ? `${summary.totals.protein} g`
-              : "Not logged"
-          }
-          description="Today total."
-          icon={Soup}
-        />
-        <MetricCard
-          title="Meals"
-          value={String(summary.meals.length)}
-          description="Meals recorded today."
-          icon={Utensils}
-        />
-        <MetricCard
-          title="Carbs"
-          value={
-            summary.totals.carbs > 0
-              ? `${summary.totals.carbs} g`
-              : "Not logged"
-          }
-          description="Today total."
-          icon={Utensils}
-        />
-        <MetricCard
-          title="Fat"
-          value={
-            summary.totals.fat > 0 ? `${summary.totals.fat} g` : "Not logged"
-          }
-          description="Today total."
-          icon={Utensils}
-        />
-      </section>
+      <WeekStrip
+        days={weekDays}
+        selectedDate={selectedDate}
+        entries={nutrition.items}
+        onSelect={setSelectedDate}
+      />
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <DashboardCard title="Today's meals">
+        <AnimatedCard>
+          <div className="rounded-[2rem] bg-card p-6 shadow-[0_18px_55px_rgb(0_0_0/0.06)] dark:border dark:border-border/60 dark:shadow-none">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  Calories
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight">
+                  {summary.totals.calories.toLocaleString()}
+                  <span className="text-xl text-muted-foreground">
+                    {" "}
+                    / {calorieTarget.toLocaleString()}
+                  </span>
+                </p>
+              </div>
+              <ProgressRing
+                value={calorieProgress}
+                size={96}
+                stroke={10}
+                label={`${calorieProgress}%`}
+              />
+            </div>
+          </div>
+        </AnimatedCard>
+
+        <AnimatedCard delay={60}>
+          <div className="rounded-[2rem] bg-card p-6 shadow-[0_18px_55px_rgb(0_0_0/0.06)] dark:border dark:border-border/60 dark:shadow-none">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  Protein
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight">
+                  {summary.totals.protein}g
+                </p>
+              </div>
+              <ProgressRing value={proteinProgress} size={78} stroke={9} />
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <MacroPill label="P" value={summary.totals.protein} />
+              <MacroPill label="C" value={summary.totals.carbs} />
+              <MacroPill label="F" value={summary.totals.fat} />
+            </div>
+          </div>
+        </AnimatedCard>
+      </section>
+
+      <div className="rounded-[1.5rem] border border-border/60 bg-card p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold">Protein</p>
+            <p className="text-2xl font-semibold">{summary.totals.protein}g</p>
+          </div>
+          <div className="text-right text-xs font-semibold text-muted-foreground">
+            {proteinTarget}g target
+          </div>
+        </div>
+      </div>
+
+      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <DashboardCard title="Recent">
           {summary.meals.length > 0 ? (
             <div className="space-y-3">
               {summary.meals.map((meal) => (
-                <div
+                <MealCard
                   key={meal.id}
-                  className="flex items-start justify-between gap-3 rounded-md border border-border bg-secondary/30 p-3"
-                >
-                  <div>
-                    <p className="font-medium">{meal.mealName ?? "Meal"}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {meal.calories ?? 0} kcal | {meal.proteinG ?? 0} g protein
-                    </p>
-                    {meal.notes ? (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {meal.notes}
-                      </p>
-                    ) : null}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => void nutrition.remove(meal.id)}
-                    aria-label="Delete meal"
-                  >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                  </Button>
-                </div>
+                  meal={meal}
+                  onDelete={() => void nutrition.remove(meal.id)}
+                />
               ))}
             </div>
           ) : (
             <EmptyState
-              title="No meals today"
-              description="Add a manual meal to start building today's nutrition totals."
+              title="No meals"
+              description="Log your first meal."
               icon={Utensils}
             />
           )}
         </DashboardCard>
 
-        <DashboardCard title="Weekly calories">
+        <DashboardCard title="Trend">
           {summary.weeklyCalories.some((point) => point.score > 0) ? (
             <DemoChart data={summary.weeklyCalories} />
           ) : (
             <EmptyState
-              title="No weekly nutrition data"
-              description="The chart will appear after meals are logged."
-              icon={Flame}
+              title="No trend"
+              description="Log meals."
+              icon={Utensils}
             />
           )}
         </DashboardCard>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <DashboardCard title="Weekly protein">
+        <DashboardCard title="Protein trend">
           {summary.weeklyProtein.some((point) => point.score > 0) ? (
             <DemoChart data={summary.weeklyProtein} />
           ) : (
             <EmptyState
-              title="No protein trend yet"
-              description="Protein trend appears after meals are logged."
+              title="No trend"
+              description="Log protein."
               icon={Soup}
             />
           )}
         </DashboardCard>
-        <DashboardCard
-          title="Macro summary"
-          description="Today totals from locally logged meals."
-        >
-          <div className="grid gap-2 text-sm">
-            <div className="flex justify-between rounded-md bg-secondary/30 px-3 py-2">
-              <span>Protein</span>
-              <span>{summary.totals.protein} g</span>
+        <DashboardCard title="AI scan">
+          <div className="flex items-center justify-between rounded-[1.35rem] bg-secondary/40 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-full bg-card">
+                <Camera className="size-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-semibold">Photo - macros</p>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Soon
+                </p>
+              </div>
             </div>
-            <div className="flex justify-between rounded-md bg-secondary/30 px-3 py-2">
-              <span>Carbs</span>
-              <span>{summary.totals.carbs} g</span>
-            </div>
-            <div className="flex justify-between rounded-md bg-secondary/30 px-3 py-2">
-              <span>Fat</span>
-              <span>{summary.totals.fat} g</span>
-            </div>
+            <Sparkles className="size-5 text-muted-foreground" />
           </div>
         </DashboardCard>
       </section>
-
-      <DashboardCard title="Recent meals">
+      <DashboardCard title="All meals">
         {summary.recentMeals.length > 0 ? (
           <div className="space-y-3">
             {summary.recentMeals.map((meal) => (
@@ -284,18 +317,6 @@ export default function NutritionPage() {
             icon={Utensils}
           />
         )}
-      </DashboardCard>
-
-      <DashboardCard
-        title="AI food image analysis"
-        description="Disabled placeholder. No OpenAI request is made."
-      >
-        <div className="flex min-h-52 flex-col items-center justify-center rounded-lg border border-dashed border-border bg-secondary/30 p-6 text-center">
-          <Camera className="size-8 text-muted-foreground" aria-hidden="true" />
-          <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-            AI food image analysis will be added server-side in a later sprint.
-          </p>
-        </div>
       </DashboardCard>
     </>
   );

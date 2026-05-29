@@ -43,8 +43,8 @@ export default function InvestmentsPage() {
     <>
       <PageHeader
         eyebrow="Investments"
-        title="Manual portfolio tracker."
-        description="Track positions with manual current prices before live market data exists."
+        title="Investments"
+        description="Portfolio"
         actions={
           <AddEntryDialog title="Add position" triggerLabel="Add position">
             {(close) => (
@@ -179,9 +179,9 @@ export default function InvestmentsPage() {
         )}
       </DashboardCard>
 
-      <DashboardCard title="Market data note">
+      <DashboardCard title="Live prices soon">
         <p className="text-sm leading-6 text-muted-foreground">
-          Live prices will be added later through a server-side market data API.
+          Server-side market data API later.
         </p>
       </DashboardCard>
     </>

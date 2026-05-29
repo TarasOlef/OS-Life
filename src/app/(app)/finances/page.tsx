@@ -44,8 +44,8 @@ export default function FinancesPage() {
     <>
       <PageHeader
         eyebrow="Finances"
-        title="Personal spending."
-        description="Manual local transaction tracking before any external finance integrations."
+        title="Finances"
+        description="Spend"
         actions={
           <AddEntryDialog
             title="Add transaction"

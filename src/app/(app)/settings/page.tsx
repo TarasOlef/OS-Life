@@ -36,8 +36,8 @@ export default function SettingsPage() {
     <>
       <PageHeader
         eyebrow="Settings"
-        title="Preferences and local data."
-        description="No auth or backend is connected in this sprint. Data currently lives in this browser."
+        title="Settings"
+        description="Local data"
       />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

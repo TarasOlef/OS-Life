@@ -9,6 +9,7 @@ type AddEntryDialogProps = {
   title: string;
   description?: string;
   triggerLabel: string;
+  trigger?: (open: () => void) => ReactNode;
   children: (close: () => void) => ReactNode;
   className?: string;
 };
@@ -17,6 +18,7 @@ export function AddEntryDialog({
   title,
   description,
   triggerLabel,
+  trigger,
   children,
   className,
 }: AddEntryDialogProps) {
@@ -27,18 +29,22 @@ export function AddEntryDialog({
 
   return (
     <>
-      <Button type="button" onClick={() => setIsOpen(true)}>
-        <Plus className="size-4" aria-hidden="true" />
-        {triggerLabel}
-      </Button>
+      {trigger ? (
+        trigger(() => setIsOpen(true))
+      ) : (
+        <Button type="button" onClick={() => setIsOpen(true)}>
+          <Plus className="size-4" aria-hidden="true" />
+          {triggerLabel}
+        </Button>
+      )}
       {isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-4 backdrop-blur-sm sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/70 p-3 backdrop-blur-xl sm:items-center">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
             className={cn(
-              "max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-card p-5 shadow-2xl",
+              "os-animate-sheet max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.75rem] border border-border/70 bg-card p-5 shadow-2xl",
               className,
             )}
           >

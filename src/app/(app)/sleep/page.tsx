@@ -35,8 +35,8 @@ export default function SleepPage() {
     <>
       <PageHeader
         eyebrow="Sleep"
-        title="Sleep and recovery."
-        description="Add or update today's sleep locally. The dashboard reads from the same daily log."
+        title="Sleep"
+        description="Recovery"
         actions={
           <AddEntryDialog title="Update sleep" triggerLabel="Update sleep">
             {(close) => (

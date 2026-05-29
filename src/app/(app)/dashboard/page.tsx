@@ -13,8 +13,9 @@ import {
 import { DashboardCard } from "@/components/app/dashboard-card";
 import { DemoChart } from "@/components/app/demo-chart";
 import { EmptyState } from "@/components/app/empty-state";
-import { MetricCard } from "@/components/app/metric-card";
+import { CompactStatCard } from "@/components/app/compact-stat-card";
 import { PageHeader } from "@/components/app/page-header";
+import { ProgressRing } from "@/components/app/progress-ring";
 import { QuickActionButton } from "@/components/app/quick-action-button";
 import { Badge } from "@/components/ui/badge";
 import { useDashboard } from "@/features/dashboard/use-dashboard";
@@ -27,20 +28,33 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        eyebrow="OS-Life"
         title="OS-Life"
-        description="Your personal command center."
-        actions={<Badge tone="info">Local-first MVP</Badge>}
+        description="Command center"
+        actions={<Badge tone="info">Local</Badge>}
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          title="Life Score"
-          value={dashboard.isLoaded ? String(dashboard.lifeScore) : "Loading"}
-          description="Simple local score from sleep, food, training, focus, money, and body data."
-          icon={Activity}
-          status="warning"
-        />
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-[2rem] bg-card p-6 shadow-[0_18px_55px_rgb(0_0_0/0.06)] dark:border dark:border-border/60 dark:shadow-none">
+          <div className="flex items-center justify-between gap-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Local score
+              </p>
+              <p className="mt-3 text-6xl font-semibold tracking-tight">
+                {dashboard.isLoaded ? dashboard.lifeScore : "--"}
+              </p>
+              <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+                {dashboard.priority}
+              </p>
+            </div>
+            <ProgressRing
+              value={dashboard.lifeScore}
+              size={124}
+              stroke={12}
+              label={`${dashboard.lifeScore}`}
+            />
+          </div>
+        </div>
         <DashboardCard title="Today's priority">
           <p className="text-sm leading-6 text-muted-foreground">
             {dashboard.priority}
@@ -70,73 +84,60 @@ export default function DashboardPage() {
         </DashboardCard>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          title="Calories"
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <CompactStatCard
+          label="Calories"
           value={
             dashboard.today.calories > 0
               ? `${dashboard.today.calories} kcal`
-              : "Not logged"
+              : "--"
           }
-          description="From today's meals."
           icon={Utensils}
         />
-        <MetricCard
-          title="Protein"
+        <CompactStatCard
+          label="Protein"
           value={
-            dashboard.today.protein > 0
-              ? `${dashboard.today.protein} g`
-              : "Not logged"
+            dashboard.today.protein > 0 ? `${dashboard.today.protein}g` : "--"
           }
-          description="From today's meals."
           icon={Activity}
         />
-        <MetricCard
-          title="Training"
+        <CompactStatCard
+          label="Training"
           value={
             dashboard.today.trainingCount > 0
-              ? `${dashboard.today.trainingCount} session`
-              : "No session"
+              ? `${dashboard.today.trainingCount}`
+              : "--"
           }
-          description="Workout sessions today."
           icon={Dumbbell}
         />
-        <MetricCard
-          title="Sleep"
+        <CompactStatCard
+          label="Sleep"
           value={formatNumber(dashboard.today.sleepHours, " h")}
-          description="From daily sleep log."
           icon={Moon}
         />
-        <MetricCard
-          title="Body weight"
+        <CompactStatCard
+          label="Body"
           value={formatNumber(dashboard.today.bodyWeightKg, " kg")}
-          description="Latest body check-in."
           icon={Weight}
         />
-        <MetricCard
-          title="Focus"
+        <CompactStatCard
+          label="Focus"
           value={`${dashboard.today.focusMinutes} min`}
-          description="Focus minutes today."
           icon={Target}
         />
-        <MetricCard
-          title="Money spent"
+        <CompactStatCard
+          label="Money"
           value={currency(dashboard.today.moneySpent)}
-          description="Today's transactions."
           icon={Banknote}
         />
-        <MetricCard
-          title="Portfolio"
+        <CompactStatCard
+          label="Portfolio"
           value={currency(dashboard.today.portfolioValue, "USD")}
-          description="Manual current prices for now."
           icon={LineChart}
         />
       </section>
 
-      <DashboardCard
-        title="Weekly trend"
-        description="Calculated from local data stored in this browser."
-      >
+      <DashboardCard title="Week">
         {hasChartData ? (
           <DemoChart data={dashboard.weeklyTrend} />
         ) : (

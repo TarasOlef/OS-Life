@@ -85,8 +85,8 @@ export default function TrainingPage() {
     <>
       <PageHeader
         eyebrow="Training"
-        title="Workouts and progression."
-        description="Log sessions locally with a basic first set and simple volume signals."
+        title="Training"
+        description="Week, volume, PRs"
         actions={
           <AddEntryDialog title="Add workout" triggerLabel="Add workout">
             {(close) => (
@@ -217,7 +217,7 @@ export default function TrainingPage() {
         />
       </section>
 
-      <DashboardCard title="PR-like max weights">
+      <DashboardCard title="PRs">
         {summary.prs.length > 0 ? (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {summary.prs.slice(0, 6).map((pr) => (

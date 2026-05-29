@@ -41,8 +41,8 @@ export default function BodyPage() {
     <>
       <PageHeader
         eyebrow="Body"
-        title="Body check-ins."
-        description="Track weight and measurements locally before adding cloud storage or AI feedback."
+        title="Body"
+        description="Weight and measurements"
         actions={
           <AddEntryDialog title="Add body check-in" triggerLabel="Add check-in">
             {(close) => (
@@ -181,14 +181,15 @@ export default function BodyPage() {
         </div>
       </DashboardCard>
 
-      <DashboardCard title="Future physique feedback">
+      <DashboardCard title="AI physique">
         <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-6 text-center">
           <Camera
             className="mx-auto size-8 text-muted-foreground"
             aria-hidden="true"
           />
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            AI physique feedback will be added server-side in a later sprint.
+            Photo feedback
+            <span className="ml-2 text-muted-foreground">Soon</span>
           </p>
         </div>
       </DashboardCard>

@@ -46,6 +46,10 @@ The current implementation stores data in `localStorage` with the `os-life:*` na
 - PWA-ready structure
 - Vercel-ready deployment
 
+## Interface Direction
+
+OS-Life uses an iOS-first interface style: large numbers, minimal labels, soft grouped cards, native-feeling bottom navigation, bottom-sheet forms, and subtle motion. The app should feel like a premium mobile health/fitness tool that expands cleanly to desktop.
+
 ## Current Sprint Scope
 
 - Premium landing/start page at `/`

@@ -38,8 +38,8 @@ export default function FocusPage() {
     <>
       <PageHeader
         eyebrow="Focus"
-        title="Deep work and execution."
-        description="Log focused sessions locally with project and quality context."
+        title="Focus"
+        description="Deep work"
         actions={
           <AddEntryDialog title="Add focus session" triggerLabel="Add session">
             {(close) => (

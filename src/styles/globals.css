@@ -4,54 +4,54 @@
 
 :root {
   color-scheme: light;
-  --background: #f7f8fa;
-  --foreground: #111827;
+  --background: #f4f2ee;
+  --foreground: #101014;
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #101014;
   --popover: #ffffff;
   --popover-foreground: #111827;
   --primary: #f8fafc;
   --primary-foreground: #0b1120;
-  --secondary: #edf2f7;
-  --secondary-foreground: #1f2937;
-  --muted: #eef2f6;
-  --muted-foreground: #64748b;
-  --accent: #dbeafe;
-  --accent-foreground: #172554;
+  --secondary: #ece9e3;
+  --secondary-foreground: #202027;
+  --muted: #ebe8e1;
+  --muted-foreground: #77747c;
+  --accent: #17151f;
+  --accent-foreground: #ffffff;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #dbe2ea;
-  --input: #dbe2ea;
-  --ring: #38bdf8;
-  --chart-1: #38bdf8;
-  --chart-2: #34d399;
-  --chart-3: #f59e0b;
+  --border: #dedbd3;
+  --input: #dedbd3;
+  --ring: #111827;
+  --chart-1: #111827;
+  --chart-2: #16a34a;
+  --chart-3: #d97706;
   --chart-4: #a78bfa;
-  --radius: 0.75rem;
+  --radius: 1.25rem;
 }
 
 .dark {
   color-scheme: dark;
-  --background: #07090d;
+  --background: #070709;
   --foreground: #f8fafc;
-  --card: #0e131b;
+  --card: #111114;
   --card-foreground: #f8fafc;
   --popover: #0e131b;
   --popover-foreground: #f8fafc;
   --primary: #f8fafc;
   --primary-foreground: #0b1120;
-  --secondary: #151b26;
+  --secondary: #1b1b20;
   --secondary-foreground: #dbe4ef;
-  --muted: #111722;
-  --muted-foreground: #91a0b6;
-  --accent: #0f2a38;
-  --accent-foreground: #bae6fd;
+  --muted: #18181d;
+  --muted-foreground: #9b9aa4;
+  --accent: #f8fafc;
+  --accent-foreground: #0b0b0f;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #1d2633;
-  --input: #1d2633;
-  --ring: #38bdf8;
-  --chart-1: #38bdf8;
+  --border: #232329;
+  --input: #25252b;
+  --ring: #f8fafc;
+  --chart-1: #f8fafc;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
   --chart-4: #c4b5fd;
@@ -100,18 +100,62 @@ html {
 
 body {
   min-height: 100%;
-  background:
-    radial-gradient(
-      circle at top left,
-      rgb(56 189 248 / 0.08),
-      transparent 34rem
-    ),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+    var(--font-geist-sans), system-ui, sans-serif;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
   background: rgb(56 189 248 / 0.25);
+}
+
+@keyframes os-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes os-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes os-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .os-animate-page {
+    animation: os-fade-up 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .os-animate-card {
+    animation: os-scale-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .os-animate-sheet {
+    animation: os-sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
 }
