@@ -1,0 +1,19 @@
+{
+  "name": "OS-Life",
+  "short_name": "OS-Life",
+  "description": "Private personal LifeOS dashboard for health, focus, finance, and portfolio tracking.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#07090d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
